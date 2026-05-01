@@ -1,0 +1,9 @@
+{
+  "extends": "airbnb-base",
+  "rules": {
+    "quotes": "off",
+    "no-console": "off",
+    "no-underscore-dangle": "off",
+    "eol-last": "off",
+  },
+}
