@@ -4,28 +4,24 @@ const path = require('path');
 
 const filePath = path.join(__dirname, '..', 'data', 'users.json');
 
-router.get('/', (req, res) => {
+function readUsersFile(res, callback) {
   fs.readFile(filePath, 'utf8', (err, data) => {
-    if (err) {
-      res.status(500).json({ message: 'Erro ao ler arquivo' });
-      return;
-    }
-    res.send(JSON.parse(data));
+    if (err) return res.status(500).json({ message: 'Erro ao ler arquivo' });
+    callback(JSON.parse(data));
+  });
+}
+
+router.get('/', (req, res) => {
+  readUsersFile(res, (users) => {
+    res.json(users);
   });
 });
 
 router.get('/:id', (req, res) => {
-  fs.readFile(filePath, 'utf8', (err, data) => {
-    if (err) {
-      res.status(500).json({ message: 'Erro ao ler arquivo' });
-      return;
-    }
-    const users = JSON.parse(data);
-    const user = users.find((u) => u._id === req.params.id);
-    if (!user) {
-      res.status(404).json({ message: 'User not found' });
-      return;
-    }
+  readUsersFile((err, users) => {
+    if (err) return res.status(500).json({ message: 'Erro ao ler arquivo' });
+    const user = users.find((user) => user._id === req.params.id);
+    if (!user) return res.status(404).json({ message: 'User not found' });
     res.send(user);
   });
 });

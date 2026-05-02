@@ -3,14 +3,10 @@ const router = require('express').Router();
 const path = require('path');
 
 const filePath = path.join(__dirname, '..', 'data', 'cards.json');
+const cards = JSON.parse(fs.readFileSync(filePath, 'utf8'));
 
 router.get('/', (req, res) => {
-  fs.readFile(filePath, 'utf8', (err, data) => {
-    if (err) {
-      return res.status(500).json({ message: 'Erro ao ler arquivo' });
-    }
-    res.send(JSON.parse(data));
-  });
+  res.send(cards);
 });
 
 module.exports = router;
