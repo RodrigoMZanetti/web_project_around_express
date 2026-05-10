@@ -18,11 +18,11 @@ const userSchema = new mongoose.Schema({
     required: true,
     validate: {
       validator(value) {
-        return /^https?:\/\/(www\.)?[._~:/?%#[]@!$&'()*+,;=]\/?/.test(value);
+        return /^https?:\/\/(www\.)?[\w\-.~:/?%#\[\]@!$&'()*+,;=]+/.test(value);
       },
       message: 'invalid URL',
     },
   },
 });
 
-module.exports = mongoose.model('User', userSchema);
+module.exports = mongoose.model('user', userSchema);
