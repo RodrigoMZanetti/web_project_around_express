@@ -1,10 +1,17 @@
 const users = require('../models/user.js');
 
+const ERROR_CODE = 400;
+
 const getUsers = (req, res) => {
   users
     .find()
     .then((users) => res.json(users))
-    .catch((err) => res.status(500).json({ message: 'User does not exist' }));
+    .catch((err) => {
+      if (err.name === 'ValidationError') {
+        return res.status(ERROR_CODE).json({ message: 'Invalid data' });
+      }
+      res.status(500).json({ message: 'User does not exist' });
+    });
 };
 
 const getUserById = (req, res) => {
@@ -12,13 +19,23 @@ const getUserById = (req, res) => {
 
   users
     .findById(id)
+    .orFail(() => {
+      const error = new Error('No users were found with that ID');
+      error.statusCode = 404;
+      throw error;
+    })
     .then((user) => {
-      if (user === null) {
-        return res.status(404).json({ message: 'User not found' });
-      }
       res.json(user);
     })
-    .catch((err) => res.status(500).json({ message: 'User does not exist' }));
+    .catch((err) => {
+      if (err.name === 'CastError') {
+        return res.status(ERROR_CODE).json({ message: 'Invalid id' });
+      }
+      if (err.statusCode === 404) {
+        return res.status(404).json({ message: 'Not Found' });
+      }
+      res.status(500).json({ message: 'User does not exist' });
+    });
 };
 
 const createUsers = (req, res) => {
@@ -26,7 +43,66 @@ const createUsers = (req, res) => {
   users
     .create({ name, about, avatar })
     .then((user) => res.json(user))
-    .catch((err) => res.status(500).json({ message: 'Something went wrong' }));
+    .catch((err) => {
+      if (err.name === 'ValidationError') {
+        return res.status(ERROR_CODE).json({ message: 'Invalid data' });
+      }
+      res.status(500).json({ message: 'Something went wrong' });
+    });
 };
 
-module.exports = { getUsers, getUserById, createUsers };
+const userPatchNameAndBody = (req, res) => {
+  const { name, about } = req.body;
+  const id = req.user._id;
+  users
+    .findByIdAndUpdate(id, { $set: { name, about } }, { new: true })
+    .orFail(() => {
+      const error = new Error('No users were found with that ID');
+      error.statusCode = 404;
+      throw error;
+    })
+    .then((user) => {
+      res.json(user);
+    })
+    .catch((err) => {
+      if (err.name === 'CastError') {
+        return res.status(ERROR_CODE).json({ message: 'Invalid id' });
+      }
+      if (err.statusCode === 404) {
+        return res.status(404).json({ message: 'Not Found' });
+      }
+      res.status(500).json({ message: 'User does not exist' });
+    });
+};
+
+const userPatchAvatar = (req, res) => {
+  const { avatar } = req.body;
+  const id = req.user._id;
+  users
+    .findByIdAndUpdate(id, { $set: { avatar } }, { new: true })
+    .orFail(() => {
+      const error = new Error('No users were found with that ID');
+      error.statusCode = 404;
+      throw error;
+    })
+    .then((user) => {
+      res.json(user);
+    })
+    .catch((err) => {
+      if (err.name === 'CastError') {
+        return res.status(ERROR_CODE).json({ message: 'Invalid id' });
+      }
+      if (err.statusCode === 404) {
+        return res.status(404).json({ message: 'Not Found' });
+      }
+      res.status(500).json({ message: 'User does not exist' });
+    });
+};
+
+module.exports = {
+  getUsers,
+  getUserById,
+  createUsers,
+  userPatchNameAndBody,
+  userPatchAvatar,
+};
