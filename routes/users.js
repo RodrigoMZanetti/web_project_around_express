@@ -16,4 +16,5 @@ router.post('/', createUsers);
 router.patch('/me', userPatchNameAndBody);
 
 router.patch('/me/avatar', userPatchAvatar);
+
 module.exports = router;

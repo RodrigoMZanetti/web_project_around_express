@@ -11,7 +11,7 @@ router.get('/', getCards);
 
 router.post('/', createCards);
 
-router.put('/:cardId/like', updateCardsLikes);
+router.put('/:cardId/likes', updateCardsLikes);
 
 router.delete('/:cardId/likes', deleteCardsLikes);
 
