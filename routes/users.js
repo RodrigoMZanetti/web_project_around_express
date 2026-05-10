@@ -18,8 +18,7 @@ router.get('/', (req, res) => {
 });
 
 router.get('/:id', (req, res) => {
-  readUsersFile((err, users) => {
-    if (err) return res.status(500).json({ message: 'Erro ao ler arquivo' });
+  readUsersFile(res, (users) => {
     const user = users.find((user) => user._id === req.params.id);
     if (!user) return res.status(404).json({ message: 'User not found' });
     res.send(user);
